@@ -1,14 +1,19 @@
 import React, { useEffect, useState } from "react";
 import { ShoppingCart, Search } from "lucide-react";
 import Cart from "./Cart";
+import { useDispatch, useSelector } from "react-redux";
+import { addToCart } from "../Redux/cardSlice";
 
-const Home = ({ cartCount = 0 }) => {
+const Home = () => {
+    
     const [shoppingItems, setShoppingItems] = useState([]);
     const [categories, setCategories] = useState([]);
-
     const [activeCategory, setActiveCategory] = useState("All");
     const [search, setSearch] = useState("");
     const [open, setOpen] = useState(false);
+    
+    const dispatch = useDispatch();
+    const cartItems = useSelector((state) => state.cart.cartItems);
 
     async function fetchShoppingItems() {
         try {
@@ -56,8 +61,6 @@ const Home = ({ cartCount = 0 }) => {
         });
     };
 
-    // console.log(filteredList);
-
     return (
         <div className="min-h-screen bg-slate-100">
             <nav className="sticky top-0 z-50 bg-white shadow-md">
@@ -88,7 +91,7 @@ const Home = ({ cartCount = 0 }) => {
                         <ShoppingCart size={22} />
 
                         <span className="absolute -top-2 -right-2 bg-red-500 h-6 w-6 rounded-full flex items-center justify-center text-sm">
-                            {cartCount}
+                            {cartItems.length}
                         </span>
                     </button>
                 </div>
@@ -121,7 +124,7 @@ const Home = ({ cartCount = 0 }) => {
                             src={product.image}
                             className="h-64 w-full object-cover"
                         />
-
+                    
                         <div className="p-6">
                             <span className="text-sm text-gray-500">
                                 {product.category}
@@ -136,7 +139,10 @@ const Home = ({ cartCount = 0 }) => {
                                     ₹{product.price}
                                 </h3>
 
-                                <button className="bg-blue-600 text-white px-5 py-2 rounded-xl hover:bg-blue-700 transition">
+                                <button
+                                    onClick={() => dispatch(addToCart(product))}
+                                    className="bg-blue-600 text-white px-5 py-2 rounded-xl hover:bg-blue-700 transition"
+                                >
                                     Add To Cart
                                 </button>
                             </div>

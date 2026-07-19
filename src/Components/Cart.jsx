@@ -1,15 +1,9 @@
 import React from "react";
 import { X, Plus, Minus, Trash2, ShoppingBag } from "lucide-react";
+import { useDispatch, useSelector } from "react-redux";
+import { addToCart, decreaseQuantity, increaseQuantity, removeFromCart } from "../Redux/cardSlice";
 
-const Cart = ({
-    // isOpen,
-    // onClose,
-    // cartItems = [],
-    // increaseQty,
-    // decreaseQty,
-    // removeItem,
-    setOpen
-}) => {
+const Cart = ({ setOpen }) => {
     // const totalPrice = cartItems.reduce(
     //     (total, item) => total + item.price * item.quantity,
     //     0,
@@ -19,6 +13,9 @@ const Cart = ({
     //     (total, item) => total + item.quantity,
     //     0,
     // );
+
+    const cartItems = useSelector((state) => state.cart.cartItems);
+    const dispatch = useDispatch();
 
     return (
         <>
@@ -50,7 +47,7 @@ const Cart = ({
                     </div>
 
                     <button
-                        onClick={()=>setOpen(false)}
+                        onClick={() => setOpen(false)}
                         className="hover:bg-gray-100 p-2 rounded-full"
                     >
                         <X />
@@ -60,7 +57,7 @@ const Cart = ({
                 {/* Cart Items */}
 
                 <div className="flex-1 overflow-y-auto px-5 py-5">
-                    {/* {cartItems.length === 0 ? (
+                    {cartItems.length === 0 ? (
                         <div className="flex flex-col items-center justify-center h-full">
                             <ShoppingBag size={80} className="text-gray-300" />
 
@@ -94,7 +91,9 @@ const Cart = ({
 
                                     <div className="flex items-center gap-3 mt-4">
                                         <button
-                                            // onClick={() => decreaseQty(item.id)}
+                                            onClick={() =>
+                                                dispatch(decreaseQuantity(item.id))
+                                            }
                                             className="h-8 w-8 rounded-lg bg-gray-100 hover:bg-gray-200 flex justify-center items-center"
                                         >
                                             <Minus size={16} />
@@ -105,7 +104,9 @@ const Cart = ({
                                         </span>
 
                                         <button
-                                            // onClick={() => increaseQty(item.id)}
+                                            onClick={() =>
+                                                dispatch(increaseQuantity(item.id))
+                                            }
                                             className="h-8 w-8 rounded-lg bg-gray-100 hover:bg-gray-200 flex justify-center items-center"
                                         >
                                             <Plus size={16} />
@@ -114,14 +115,14 @@ const Cart = ({
                                 </div>
 
                                 <button
-                                    // onClick={() => removeItem(item.id)}
+                                    onClick={() =>dispatch(removeFromCart(item.id))}
                                     className="text-red-500 hover:text-red-700"
                                 >
                                     <Trash2 />
                                 </button>
                             </div>
                         ))
-                    )} */}
+                    )}
                 </div>
 
                 {/* Footer */}
