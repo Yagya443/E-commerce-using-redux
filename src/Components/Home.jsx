@@ -1,72 +1,65 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ShoppingCart, Search } from "lucide-react";
+import Cart from "./Cart";
 
-const products = [
-    {
-        id: 1,
-        title: "Nike Air Max",
-        category: "Shoes",
-        price: 3999,
-        image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500",
-    },
-    {
-        id: 2,
-        title: "Apple Watch",
-        category: "Watches",
-        price: 24999,
-        image: "https://images.unsplash.com/photo-1546868871-7041f2a55e12?w=500",
-    },
-    {
-        id: 3,
-        title: "Headphones",
-        category: "Electronics",
-        price: 2999,
-        image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500",
-    },
-    {
-        id: 4,
-        title: "Backpack",
-        category: "Fashion",
-        price: 1899,
-        image: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=500",
-    },
-    {
-        id: 5,
-        title: "Gaming Mouse",
-        category: "Electronics",
-        price: 1499,
-        image: "https://images.unsplash.com/photo-1527814050087-3793815479db?w=500",
-    },
-    {
-        id: 6,
-        title: "White Sneakers",
-        category: "Shoes",
-        price: 2799,
-        image: "https://images.unsplash.com/photo-1549298916-b41d501d3772?w=500",
-    },
-];
+const Home = ({ cartCount = 0 }) => {
+    const [shoppingItems, setShoppingItems] = useState([]);
+    const [categories, setCategories] = useState([]);
 
-const categories = ["All", "Shoes", "Electronics", "Fashion", "Watches"];
-
-const Home = ({ cartCount = 0, openCart }) => {
-    const [search, setSearch] = useState("");
     const [activeCategory, setActiveCategory] = useState("All");
+    const [search, setSearch] = useState("");
+    const [open, setOpen] = useState(false);
 
-    const filteredProducts = products.filter((product) => {
-        const matchCategory =
-            activeCategory === "All" || product.category === activeCategory;
+    async function fetchShoppingItems() {
+        try {
+            const response = await fetch("https://fakestoreapi.com/products");
 
-        const matchSearch = product.title
-            .toLowerCase()
-            .includes(search.toLowerCase());
+            const data = await response.json();
+            // console.log(data?.category);
+            console.log(data);
+            setShoppingItems(data);
+        } catch (error) {
+            console.log(error);
+        }
+    }
 
-        return matchCategory && matchSearch;
-    });
+    useEffect(() => {
+        fetchShoppingItems();
+    }, []);
+
+    useEffect(() => {
+        const categoryList = shoppingItems.reduce(
+            (acc, item) => {
+                if (!acc.includes(item.category)) {
+                    acc.push(item.category);
+                }
+                return acc;
+            },
+            ["All"],
+        );
+
+        setCategories(categoryList);
+        // console.log(categoryList);
+    }, [shoppingItems]);
+
+    const filteredList = () => {
+        return shoppingItems.filter((item) => {
+            const matchesSearch = item.description
+                .toLowerCase()
+                .includes(search.toLowerCase());
+
+            const matchesCategory =
+                activeCategory === "All" ||
+                item.category.toLowerCase() === activeCategory.toLowerCase();
+
+            return matchesSearch && matchesCategory;
+        });
+    };
+
+    // console.log(filteredList);
 
     return (
         <div className="min-h-screen bg-slate-100">
-            {/* Navbar */}
-
             <nav className="sticky top-0 z-50 bg-white shadow-md">
                 <div className="max-w-7xl mx-auto flex items-center justify-between px-8 py-5">
                     <h1 className="text-3xl font-bold text-blue-600">
@@ -89,7 +82,7 @@ const Home = ({ cartCount = 0, openCart }) => {
                     </div>
 
                     <button
-                        onClick={openCart}
+                        onClick={() => setOpen(true)}
                         className="relative bg-blue-600 text-white p-3 rounded-xl hover:bg-blue-700 transition"
                     >
                         <ShoppingCart size={22} />
@@ -101,53 +94,25 @@ const Home = ({ cartCount = 0, openCart }) => {
                 </div>
             </nav>
 
-            {/* Hero */}
-
-            <section className="max-w-7xl mx-auto mt-10 rounded-3xl overflow-hidden bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-10 py-20 flex flex-col md:flex-row items-center justify-between">
-                <div>
-                    <h2 className="text-5xl font-bold leading-tight">
-                        Summer Collection
-                    </h2>
-
-                    <p className="mt-5 text-lg text-blue-100 max-w-lg">
-                        Discover premium products with amazing discounts.
-                        Upgrade your lifestyle with modern essentials.
-                    </p>
-
-                    <button className="mt-8 bg-white text-blue-600 px-8 py-3 rounded-xl font-semibold hover:scale-105 transition">
-                        Shop Now
-                    </button>
-                </div>
-
-                <img
-                    src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=700"
-                    className="w-[350px] mt-10 md:mt-0 rounded-3xl shadow-2xl"
-                />
-            </section>
-
-            {/* Categories */}
-
             <section className="max-w-7xl mx-auto mt-10 flex gap-4 flex-wrap">
-                {categories.map((category) => (
+                {categories?.map((items) => (
                     <button
-                        key={category}
-                        onClick={() => setActiveCategory(category)}
+                        key={items.id}
+                        onClick={() => setActiveCategory(items)}
                         className={`px-6 py-2 rounded-full font-medium transition
             ${
-                activeCategory === category
+                activeCategory === items
                     ? "bg-blue-600 text-white"
                     : "bg-white hover:bg-blue-100"
             }`}
                     >
-                        {category}
+                        {items.toUpperCase()}
                     </button>
                 ))}
             </section>
 
-            {/* Products */}
-
-            <section className="max-w-7xl mx-auto py-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                {filteredProducts.map((product) => (
+            <section className="max-w-7xl mx-auto py-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                {filteredList()?.map((product) => (
                     <div
                         key={product.id}
                         className="bg-white rounded-3xl overflow-hidden shadow-lg hover:-translate-y-2 hover:shadow-2xl transition"
@@ -179,6 +144,8 @@ const Home = ({ cartCount = 0, openCart }) => {
                     </div>
                 ))}
             </section>
+
+            {open && <Cart setOpen={setOpen} />}
         </div>
     );
 };
